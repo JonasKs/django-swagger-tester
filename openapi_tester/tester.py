@@ -13,7 +13,7 @@ from openapi_tester.static.parse import parse_endpoint
 logger = logging.getLogger('openapi_tester')
 
 
-def validate_schema(response: Response, method: str, endpoint_url: str) -> None:
+def validate_schema(response: Response, method: str, status_code: Union[int, str], endpoint_url: str) -> None:
     """
     This function verifies that your OpenAPI schema definition matches the response of your API endpoint.
     It inspects your schema recursively, and verifies that the schema matches the structure of the response,
@@ -21,6 +21,7 @@ def validate_schema(response: Response, method: str, endpoint_url: str) -> None:
 
     :param response: dict, unpacked response object (response.json())
     :param method: HTTP method ('get', 'put', 'post', ...)
+    :param status_code: HTTP response code
     :param endpoint_url: Relative path of the endpoint being tested
     :return: None
     """
@@ -37,9 +38,9 @@ def validate_schema(response: Response, method: str, endpoint_url: str) -> None:
     if schema == 'static':
         complete_schema = fetch_from_dir(path=path)
         # Get the part of the schema relating to the endpoints success-response
-        schema = parse_endpoint(schema=complete_schema, method=method, endpoint_url=endpoint_url)
+        schema = parse_endpoint(schema=complete_schema, method=method, endpoint_url=endpoint_url, status_code=status_code)
     else:
-        schema = fetch_generated_schema(url=endpoint_url, method=method)
+        schema = fetch_generated_schema(url=endpoint_url, method=method, status_code=status_code)
 
     # Test schema
     if 'properties' in schema:
